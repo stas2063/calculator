@@ -798,6 +798,7 @@
     /* ===== Распознавание (Web + Cordova) ===== */
     let sessionActive = false;
     let watchdogTimer = null;
+    let webSessionParts = [];
     const recognizer = {
         mode: 'none',
         available: false,
@@ -821,6 +822,7 @@
                 try { recognizer._rec.stopListening(() => {}, () => {}); } catch (e) {}
             }
         }
+        webSessionParts = [];
         commitResult();
     }
 
@@ -837,6 +839,7 @@
             UI.setListening(true);
             fitFullText('');
             if (UI.expr) { UI.expr.textContent = ''; UI.expr.scrollLeft = 0; }
+            webSessionParts = [];
 
             rec = new SR();
             recognizer._rec = rec;
@@ -850,7 +853,7 @@
                 const transcripts = [];
                 for (let i = e.resultIndex; i < e.results.length; i++) {
                     const result = e.results[i];
-                    if (!result) continue;
+                    if (!result || (typeof result.isFinal === 'boolean' && !result.isFinal)) continue;
                     for (let j = 0; j < result.length; j++) {
                         const alternative = result[j];
                         if (!alternative) continue;
@@ -858,15 +861,17 @@
                         if (text) transcripts.push(text);
                     }
                 }
-                const transcript = transcripts.join(' ').trim();
+                if (transcripts.length) {
+                    webSessionParts.push(...transcripts);
+                }
+                const transcript = webSessionParts.join(' ').replace(/\s+/g, ' ').trim();
                 if (transcript) {
                     updateLive(transcript);
                 }
-                stopSession();
             };
 
             rec.onspeechend = () => {
-                try { rec.stop(); } catch (_) {}
+                rec.stop();
             };
             rec.onerror = stopSession;
             rec.onend = stopSession;
