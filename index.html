@@ -841,20 +841,33 @@
             rec = new SR();
             recognizer._rec = rec;
             rec.lang = 'ru-RU';
-            rec.continuous = false;
             rec.interimResults = false;
             rec.maxAlternatives = 1;
+            rec.continuous = false;
 
             rec.onresult = (e) => {
                 if (watchdogTimer) clearTimeout(watchdogTimer);
-                const transcript = e.results[0][0].transcript.trim();
+                const transcripts = [];
+                for (let i = e.resultIndex; i < e.results.length; i++) {
+                    const result = e.results[i];
+                    if (!result) continue;
+                    for (let j = 0; j < result.length; j++) {
+                        const alternative = result[j];
+                        if (!alternative) continue;
+                        const text = String(alternative.transcript || '').trim();
+                        if (text) transcripts.push(text);
+                    }
+                }
+                const transcript = transcripts.join(' ').trim();
                 if (transcript) {
                     updateLive(transcript);
                 }
                 stopSession();
             };
 
-            rec.onspeechend = stopSession;
+            rec.onspeechend = () => {
+                try { rec.stop(); } catch (_) {}
+            };
             rec.onerror = stopSession;
             rec.onend = stopSession;
 
