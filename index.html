@@ -192,7 +192,7 @@
         <div class="about-body">
           <article class="policy">
             <h2>Политика конфиденциальности приложения «Голосовой калькулятор»</h2>
-            <p><b>Дата последнего обновления:</b> 17 сентября 2025 г.</p>
+            <p><b>Дата последнего обновления:</b> 5 октября 2025 г.</p>
             <h3>1. Общие положения</h3>
             <p>Мобильное приложение «Голосовой калькулятор» предназначено для голосовых вычислений. Используя Приложение, пользователь соглашается с условиями настоящей Политики.</p>
             <h3>2. Сбор и использование данных</h3>
@@ -219,7 +219,7 @@
             <h3>9. Контакты</h3>
             <p>Почта разработчика: <b>gameloft235@gmail.com</b>.</p>
           </article>
-          <div class="about-footer">Версия <b>1.0.7</b></div>
+          <div class="about-footer">Версия <b>1.0.8</b></div>
         </div>
       </section>
     </div>
@@ -565,531 +565,24 @@
     }
     $('#btnClearHistory').addEventListener('click',()=>{ saveHistory([]); renderHistory(); });
 
-    /* ===== Нормализация/словари ===== */
-    function normalizeNumeralTypos(s){
-      return String(s)
-        .toLowerCase().replace(/ё/g,'е')
-        .replace(/[\u00A0\u202F]/g,' ')
-        // масштабы и разговорные
-        .replace(/\bт[ьи]сяч[а-я]*\b/g,'тысяч')
-        .replace(/\bтысяц[а-я]*\b/g,'тысяч')
-        .replace(/\bтыща\b/g,'тысяч')
-        .replace(/\bтыщ\b/g,'тысяч')
-        .replace(/\bтыс\.?\b/g,'тысяч')
-        .replace(/\bмлн\.?\b/g,'миллион')
-        .replace(/\bмлрд\.?\b/g,'миллиард')
-        // порядковые -> количественные
-        .replace(/\bперв(ой|ый|ая|ое|ую|ого|ому|ыми|ых|ым)\b/g,'один')
-        .replace(/\bвтор(ой|ый|ая|ое|ую|ого|ому|ыми|ых|ым)\b/g,'два')
-        .replace(/\bтрет(?:ий|ья|ье|ью|ьей|ьим|ьих|ей)\b/g,'три')
-        .replace(/\bтреть(?:я|ей|ю|е)?\b/g,'три')
-        .replace(/\bчетверт(?:ой|ый|ая|ое|ую|ого|ому|ыми|ых|ым)\b/g,'четыре')
-        .replace(/\bпят(ой|ый|ая|ое|ую|ого|ому|ыми|ых|ым)\b/g,'пять')
-        .replace(/\bшест(ой|ый|ая|ое|ую|ого|ому|ыми|ых|ым)\b/g,'шесть')
-        .replace(/\bседьм(ой|ый|ая|ое|ую|ого|ому|ыми|ых|ым)\b/g,'семь')
-        .replace(/\bвосьм(ой|ый|ая|ое|ую|ого|ому|ыми|ых|ым)\b/g,'восемь')
-        .replace(/\bдевят(ой|ый|ая|ое|ую|ого|ому|ыми|ых|ым)\b/g,'девять')
-        .replace(/\bдесят(ой|ый|ая|ое|ую|ого|ому|ыми|ых|ым)\b/g,'десять')
-        // родительные падежи после "из" или при указании долей
-        .replace(/(^|\s)одн(?:ой|ого|ому|ым|ых)(?=\s|$)/g,'$1один')
-        .replace(/(^|\s)двух(?=\s|$)/g,'$1два')
-        .replace(/(^|\s)тр(?:ех|ёх)(?=\s|$)/g,'$1три')
-        .replace(/(^|\s)четыр(?:ех|ёх)(?=\s|$)/g,'$1четыре')
-        .replace(/(^|\s)пяти(?=\s|$)/g,'$1пять')
-        .replace(/(^|\s)шести(?=\s|$)/g,'$1шесть')
-        .replace(/(^|\s)семи(?=\s|$)/g,'$1семь')
-        .replace(/(^|\s)восьми(?=\s|$)/g,'$1восемь')
-        .replace(/(^|\s)девяти(?=\s|$)/g,'$1девять')
-        .replace(/(^|\s)десяти(?=\s|$)/g,'$1десять')
-        // «миллион/миллиард», но НЕ «миллионных/миллиардных»
-        .replace(/\bмиль?и?он(?!н[а-я])([а-я]*)\b/g,'миллион$1')
-        .replace(/\bмили?ард(?!н[а-я])([а-я]*)\b/g,'миллиард$1')
-        .replace(/\bмильон([а-я]*)\b/g,'миллион$1')
-        .replace(/\bмильярд([а-я]*)\b/g,'миллиард$1')
-        // десятки/сотни опечатки
-        .replace(/\bтридать\b/g,'тридцать')
-        .replace(/\bшестьдесять\b/g,'шестьдесят')
-        .replace(/\bсемьдесять\b/g,'семьдесят')
-        .replace(/\bвосемьдесять\b/g,'восемьдесят')
-        .replace(/\bшесдесят\b/g,'шестьдесят')
-        .replace(/\bсемдесят\b/g,'семьдесят')
-        .replace(/\bвосемдесят\b/g,'восемьдесят')
-        .replace(/\bдевяноста\b/g,'девяносто')
-        // сотни
-        .replace(/\bдвесте\b/g,'двести')
-        .replace(/\bдвисти\b/g,'двести')
-        .replace(/\bтристо\b/g,'триста')
-        .replace(/\bчетыр?иста\b/g,'четыреста')
-        .replace(/\bпятсот\b/g,'пятьсот')
-        .replace(/\bпяцот\b/g,'пятьсот')
-        .replace(/\bшессот\b/g,'шестьсот')
-        .replace(/\bшесот\b/g,'шестьсот')
-        .replace(/\bсемсот\b/g,'семьсот')
-        .replace(/\bвосемсот\b/g,'восемьсот')
-        .replace(/\bдевя[сз]от\b/g,'девятьсот')
-        // «минус17» → «минус 17»
-        .replace(/\bминус(?=\d)/g,'минус ');
-    }
-    function foldCompoundHundreds(s){
-      return s
-        .replace(/\bод(ин|на)\s+сот(ня|ни|ен)?\b/g,'сто')
-        .replace(/\bдв(а|е)\s+сот(ня|ни|ен)?\b/g,'двести')
-        .replace(/\bтри\s+сот(ня|ни|ен)?\b/g,'триста')
-        .replace(/\bчетыре\s+сот(ня|ни|ен)?\b/g,'четыреста')
-        .replace(/\bпять\s+сот(ня|ни|ен)?\b/g,'пятьсот')
-        .replace(/\bшесть\s+сот(ня|ни|ен)?\b/g,'шестьсот')
-        .replace(/\bсемь\s+сот(ня|ни|ен)?\b/g,'семьсот')
-        .replace(/\bвосемь\s+сот(ня|ни|ен)?\b/g,'восемьсот')
-        .replace(/\bдевять\s+сот(ня|ни|ен)?\b/g,'девятьсот');
+    /* ===== Форматирование и вычисление ===== */
+    function formatNumberSpaces(num){
+      if (num == null || !isFinite(num)) return '';
+      const s = String(num);
+      const [intPart, fracPart] = s.split('.');
+      const intFmt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+      return fracPart ? `${intFmt}.${fracPart}` : intFmt;
     }
 
-    const UNITS={ 'ноль':0,'один':1,'одна':1,'два':2,'две':2,'три':3,'четыре':4,'пять':5,'шесть':6,'семь':7,'восемь':8,'девять':9,
-      'десять':10,'одиннадцать':11,'двенадцать':12,'тринадцать':13,'четырнадцать':14,'пятнадцать':15,'шестнадцать':16,'семнадцать':17,'восемнадцать':18,'девятнадцать':19 };
-    const TENS={ 'двадцать':20,'тридцать':30,'сорок':40,'пятьдесят':50,'шестьдесят':60,'семьдесят':70,'восемьдесят':80,'девяносто':90 };
-    const HUNS={ 'сто':100,'двести':200,'триста':300,'четыреста':400,'пятьсот':500,'шестьсот':600,'семьсот':700,'восемьсот':800,'девятьсот':900 };
-    const SCALE={ 'тысяча':1_000,'тысячи':1_000,'тысяч':1_000,
-                  'млн':1_000_000,'миллион':1_000_000,'миллиона':1_000_000,'миллионов':1_000_000,'миллионом':1_000_000,'миллионам':1_000_000,'миллионами':1_000_000,
-                  'млрд':1_000_000_000,'миллиард':1_000_000_000,'миллиарда':1_000_000_000,'миллиардов':1_000_000_000,'миллиардом':1_000_000_000,'миллиардам':1_000_000_000,'миллиардами':1_000_000_000 };
-    const DIGITWORD={'ноль':'0','один':'1','одна':'1','два':'2','две':'2','три':'3','четыре':'4','пять':'5','шесть':'6','семь':'7','восемь':'8','девять':'9'};
-
-    function tokenizeRu(s){
-      s = String(s).replace(/[.,!?;:(){}\[\]]/g,' ').trim();
-      const out = s.match(/[A-Za-zА-Яа-яЁё]+|\d+/g) || [];
-      return out;
-    }
-
-    // Свёртка слов → число (масштабы устойчиво)
-    function wordsToNumber(str){
-      const norm = foldCompoundHundreds(normalizeNumeralTypos(str));
-      const tokens = tokenizeRu(norm);
-
-      let total = 0;  // сумма по масштабам
-      let group = 0;  // текущая группа (<=999)
-      let matched = false;
-
-      for (let w of tokens){
-        if (w === 'и') continue;
-
-        if (/^\d+$/.test(w)) { group += parseInt(w,10); matched=true; continue; }
-        if (w === 'полтора' || w === 'полторы') { group += 1.5; matched=true; continue; }
-
-        if (HUNS[w]  !== undefined) { group += HUNS[w];  matched=true; continue; }
-        if (TENS[w]  !== undefined) { group += TENS[w];  matched=true; continue; }
-        if (UNITS[w] !== undefined) { group += UNITS[w]; matched=true; continue; }
-
-        if (SCALE[w] !== undefined){
-          if (group === 0) group = 1;          // «миллион» без числа → 1*
-          total += group * SCALE[w];
-          group = 0;
-          matched = true;
-          continue;
+    const calc = s => {
+        // Basic validation to prevent eval-ing unwanted code
+        if (/[^0-9+\-*/.()\s]/.test(s)) {
+            throw new Error("Invalid characters in expression");
         }
-      }
-      return matched ? total + group : NaN;
-    }
-
-    function extractNumberRu(input){
-      let s = String(input||'').trim()
-        .replace(/ё/g,'е')
-        .replace(/[\u00A0\u202F]/g,' ')
-        .replace(/(\d)([a-zа-яё]+)/gi,'$1 $2');
-
-      s = foldCompoundHundreds(normalizeNumeralTypos(s));
-
-      // «258 , 3»/«258 . 3» (только между цифрами) → десятичная точка
-      s = s.replace(/(\d)\s*[.,]\s*(\d)/g,'$1.$2');
-
-      // унарный минус словами/знаком
-      const mneg = s.match(/^\s*(?:-+|минус)\s*(.+)$/i);
-      if (mneg) {
-        const rest = mneg[1];
-        const val = parseFloat(extractNumberRu(rest)||'0')||0;
-        return String(-val);
-      }
-
-      // готовые числовые форматы с разделителями тысяч
-      if (/^[-+]?\d{1,3}(?:[ \u00A0\u202F]?\d{3})+(?:[.,]\d+)?$/.test(s))
-        return String(parseFloat(s.replace(/[ \u00A0\u202F]/g,'').replace(',', '.')));
-      if (/^[-+]?\d{1,3}(?:\.\d{3})+(?:,\d+)?$/.test(s))
-        return String(parseFloat(s.replace(/\./g,'').replace(',', '.')));
-      if (/^[-+]?\d{1,3}(?:['’]\d{3})+(?:[.,]\d+)?$/.test(s))
-        return String(parseFloat(s.replace(/['’]/g,'').replace(',', '.')));
-
-      let m;
-
-      // «A . B» / «A , B» (A/B — слова или цифры)
-      if (m = s.match(/^(.+?)\s*[\.,]\s*(.+)$/)) {
-        const ipStr = m[1].trim();
-        const ip = (/^\d+$/.test(ipStr)) ? parseInt(ipStr,10) : wordsToNumber(ipStr);
-        const rest = m[2].trim();
-        const allDigits = rest.split(/\s+/).every(t=> DIGITWORD[t]!==undefined || /^\d+$/.test(t));
-        const decStr = allDigits
-          ? rest.split(/\s+/).map(t=> /^\d+$/.test(t)? t : DIGITWORD[t]).join('')
-          : String((/^\d+$/.test(rest)? parseInt(rest,10) : wordsToNumber(rest)));
-        return String(parseFloat(ip + '.' + decStr));
-      }
-
-      // полтора/пол… + масштаб + хвост
-      if (m = s.match(/^\s*(полтора|полторы)\s+(тысяч[а-я]*|миллион[а-я]*|миллиард[а-я]*|млн|млрд)\b(.*)$/i)){
-        const sw = m[2].toLowerCase();
-        const mult = sw.startsWith('тыс')?1_000:(sw.startsWith('млрд')||sw.startsWith('миллиард')?1_000_000_000:1_000_000);
-        const head = 1.5 * mult; const tail = m[3].trim();
-        if (tail){ const tv = parseFloat(extractNumberRu(tail)||'0')||0; return String(head + tv); }
-        return String(head);
-      }
-      if (m = s.match(/^\s*пол(тысячи|миллиона|миллиарда|млн|млрд)\b(.*)$/i)){
-        const sw = m[1].toLowerCase();
-        const k = sw.startsWith('тыс')?1_000:(sw.startsWith('млрд')||sw.startsWith('миллиард')?1_000_000_000:1_000_000);
-        const head = 0.5 * k; const tail = (m[2]||'').trim();
-        if (tail){ const tv = parseFloat(extractNumberRu(tail)||'0')||0; return String(head + tv); }
-        return String(head);
-      }
-
-      // «X с половиной», «X 1/2», «X½»
-      if (m = s.match(/^(.+?)\s+(?:с|и)?\s*половин(?:ой|а|у|е|ы)?$/i)){
-        const baseStr = m[1].trim();
-        const base = (/^\d+$/.test(baseStr)) ? parseInt(baseStr,10) : wordsToNumber(baseStr);
-        return String(base + 0.5);
-      }
-      if (m = s.match(/^(.+?)\s*(?:1\/2|½)$/)){
-        const baseStr = m[1].trim();
-        const base = (/^\d+$/.test(baseStr)) ? parseInt(baseStr,10) : wordsToNumber(baseStr);
-        return String(base + 0.5);
-      }
-
-      // «X целых|точка|запятая Y …»
-      if (m = s.match(/^(.+?)\s+(целых?|целая|целое|запятая|точка)\s+(.+)$/i)){
-        const ipStr = m[1].trim();
-        const ip = (/^\d+$/.test(ipStr)) ? parseInt(ipStr,10) : wordsToNumber(ipStr);
-        const rest = normalizeNumeralTypos(m[3].trim());
-        const mu = rest.match(/^(.*?)\s+(десятых?|десятая|десятую|сотых?|сотая|сотую|тысячных?|тысячная|тысячную|десятитысячных?|десятитысячная|десятитысячную|стотысячных?|стотысячная|стотысячную|миллионных?|миллионная|миллионную|миллиардных?|миллиардная|миллиардную)$/i);
-        if (mu){
-          const nStr = mu[1].trim();
-          const n = (/^\d+$/.test(nStr)) ? parseInt(nStr,10) : wordsToNumber(nStr);
-          const unit = mu[2].toLowerCase();
-          let pad = 1;
-          if (/^десятитысяч/.test(unit)) pad = 4;
-          else if (/^стотысяч/.test(unit)) pad = 5;
-          else if (/^миллион/.test(unit)) pad = 6;
-          else if (/^миллиард/.test(unit)) pad = 9;
-          else if (/^сот/.test(unit)) pad = 2;
-          else if (/^тысяч/.test(unit)) pad = 3;
-          return ip + '.' + String(n).padStart(pad,'0');
-        }
-        const allDigits = rest.split(/\s+/).every(t=> DIGITWORD[t]!==undefined || /^\d+$/.test(t));
-        const decStr = allDigits
-          ? rest.split(/\s+/).map(t=> /^\d+$/.test(t)? t : DIGITWORD[t]).join('')
-          : String((/^\d+$/.test(rest)? parseInt(rest,10) : wordsToNumber(rest)));
-        return ip + '.' + decStr;
-      }
-
-      // «N тысяч/миллион/миллиард» без хвоста
-      if (m = s.match(/^\s*(.+?)\s+(тысяч[а-я]*|миллион[а-я]*|миллиард[а-я]*|млн|млрд)\s*$/i)) {
-        const qStr = m[1].trim();
-        const sw = m[2].toLowerCase();
-        const mult = sw.startsWith('тыс')?1_000:(sw.startsWith('млрд')||sw.startsWith('миллиард')?1_000_000_000:1_000_000);
-        const q = (/^\d+$/.test(qStr)) ? parseInt(qStr,10) : wordsToNumber(qStr || 'один');
-        return String((q||1) * mult);
-      }
-
-      // простое число цифрами
-      if (/^[-+]?\d+(?:[.,]\d+)?$/.test(s))
-        return String(parseFloat(s.replace(',', '.')));
-
-      // слова → число с масштабами
-      const num = wordsToNumber(s);
-      return isNaN(num) ? s : String(num);
-    }
-
-    /* ===== Форматирование вывода ===== */
-    function isDigits(str){ for(let i=0;i<str.length;i++){ const c=str.charCodeAt(i); if(c<48||c>57) return false; } return str.length>0; }
-    function formatNumberSpaces(value){
-      const s = String(value);
-      let rest = s; let sign='';
-      if(rest[0]==='-'||rest[0]==='+'){ sign = (rest[0]==='-')?'-':''; rest = rest.slice(1); }
-      const parts = rest.split('.');
-      const intPart = parts[0]||''; const decPart = parts[1]||'';
-      if(!isDigits(intPart) || (decPart && !isDigits(decPart))) return s;
-      let grouped='';
-      for(let i=0;i<intPart.length;i++){
-        if(i>0 && (intPart.length - i) % 3 === 0) grouped += ' ';
-        grouped += intPart[i];
-      }
-      return sign + grouped + (decPart?('.'+decPart):'');
-    }
-
-    /* ===== Разбор выражения ===== */
-// "X на Y" → "X * Y" (когда ASR съел слово «умножь»)
-function fixNaMultiplication(str){
-  // цифры: "12 на 3" → "12 * 3"
-  str = str.replace(/(\d+(?:[.,]\d+)?)\s+на\s+(\d+(?:[.,]\d+)?)/gi, '$1 * $2');
-  // слова (включая десятки/сотни/масштабы): "пять на три" → "пять * три"
-  const w = '(?:ноль|один|одна|два|две|три|четыре|пять|шесть|семь|восемь|девять|десять|одиннадцать|двенадцать|тринадцать|четырнадцать|пятнадцать|шестнадцать|семнадцать|восемнадцать|девятнадцать|двадцать|тридцать|сорок|пятьдесят|шестьдесят|семьдесят|восемьдесят|девяносто|сто|двести|триста|четыреста|пятьсот|шестьсот|семьсот|восемьсот|девятьсот|тысяч[а-я]*|миллион[а-я]*|миллиард[а-я]*)';
-  const re = new RegExp('(^|\s)('+w+')\s+на\s+('+w+')(?=\s|$)','gi');
-  return str.replace(re, (m, lead,a,b)=> lead+a+' * '+b);
-}
-
-// "X дели Y" → "X / Y" (когда распознавание пропустило слово «на»)
-function fixNaDivision(str){
-  // цифры: "12 дели 3" → "12 / 3"
-  str = str.replace(/(\d+(?:[.,]\d+)?)\s+(?:дели|раздели|подели|поделить)\s+(\d+(?:[.,]\d+)?)/gi,'$1 / $2');
-  // слова и масштабы: "шесть дели три" → "шесть / три"
-  const w='(?:ноль|один|одна|два|две|три|четыре|пять|шесть|семь|восемь|девять|десять|одиннадцать|двенадцать|тринадцать|четырнадцать|пятнадцать|шестнадцать|семнадцать|восемнадцать|девятнадцать|двадцать|тридцать|сорок|пятьдесят|шестьдесят|семьдесят|восемьдесят|девяносто|сто|двести|триста|четыреста|пятьсот|шестьсот|семьсот|восемьсот|девятьсот|тысяч[а-я]*|тыс\.?|миллион[а-я]*|млн\.?|миллиард[а-я]*|млрд\.?)';
-  const re=new RegExp('(^|\\s)('+w+')\s+(?:дели|раздели|подели|поделить)\s+('+w+')(?=\\s|$)','gi');
-  return str.replace(re,(m,lead,a,b)=>lead+a+' / '+b);
-}
-
-// После "*" если идут «голые» числа или списки через запятую/«и/на», вставляем "*" между ними.
-// "* 5 3" → "* 5 * 3", "* пять, три" → "* пять * три".
-// Не ломает составные "двадцать три": десятки/сотни/масштабы не считаются «атомарными».
-function insertStarsAfterStar(str){
-  const toks = String(str).split(/\s+/).filter(Boolean);
-  const out = [];
-  let afterStar = false;
-  let prevAtomic = false; // предыдущий токен после "*" был атомарным (цифра или слово-единица)
-  const isDigitTok = t => /^\d+(?:[.,]\d+)?$/.test(t);
-  const isUnitTok = t => UNITS[t.toLowerCase()] !== undefined; // один.. девять, десять.. девятнадцать
-  const isTensOrHundOrScale = t => {
-    t = t.toLowerCase();
-    return TENS[t] !== undefined || HUNS[t] !== undefined ||
-           /^тысяч/.test(t) || /^миллион/.test(t) || /^миллиард/.test(t) ||
-           t==='млн' || t==='млрд';
-  };
-  for (let i=0; i<toks.length; i++){
-    let tok = toks[i];
-    let clean = tok.replace(/[,;]+$/, '');
-    const hadSep = clean.length !== tok.length; // был разделитель в конце
-    tok = clean;
-    const low = tok.toLowerCase();
-    if (tok==='*'){
-      out.push(tok);
-      afterStar=true;
-      prevAtomic=false;
-      continue;
-    }
-    if (['+','-','/','(',')'].includes(tok)){
-      out.push(tok);
-      afterStar=false;
-      prevAtomic=false;
-      continue;
-    }
-    if (!afterStar){
-      if (tok) out.push(tok);
-      continue;
-    }
-    // внутри хвоста после "*": разделители/союзы
-    if (low==='и' || low==='на'){
-      out.push('*');
-      prevAtomic=false;
-      if (hadSep){ out.push('*'); }
-      continue;
-    }
-    if (!tok){
-      out.push('*');
-      prevAtomic=false;
-      continue;
-    }
-    const atomic = isDigitTok(tok) || isUnitTok(tok);
-    const tensHundScale = isTensOrHundOrScale(tok);
-    if (prevAtomic && atomic){
-      out.push('*');
-    }
-    out.push(tok);
-    prevAtomic = atomic && !tensHundScale;
-    if (hadSep){
-      if (toks[i+1] !== '*') out.push('*');
-      prevAtomic=false;
-    }
-  }
-  return out.join(' ');
-}
-
-// Regex-добивка: последовательно идущие цифры или слова-единицы после "*" → перемножаем.
-function insertStarsBetweenBareNumbers(str){
-  // цифры: "* 5 3" → "* 5 * 3"
-  str = str.replace(/(\*)\s*((?:\d+(?:[.,]\d+)?\s+){1,}\d+(?:[.,]\d+)?)/g,
-                     (_, star, seq) => star + ' ' + seq.trim().replace(/\s+/g, ' * '));
-  // слова-единицы: "* пять три" → "* пять * три"
-  const unit = '(?:ноль|один|одна|два|две|три|четыре|пять|шесть|семь|восемь|девять)';
-  const reg = new RegExp('(\\*)\\s*((?:' + unit + '\\s+){1,}' + unit + ')','gi');
-  str = str.replace(reg, (_, star, seq) => star + ' ' + seq.trim().replace(/\s+/g, ' * '));
-  return str;
-}
-
-// Схлопываем повторяющиеся "*" (во избежание "* *" → "**" → возведение в степень)
-function collapseRepeatedStars(str){
-  return str.replace(/\*(?:\s*\*)+/g,'*');
-}
-
-// Если оператор пропал, а осталось только "1380 4" → добавим "+" → "1380 + 4"
-function insertPlusBetweenNumbers(str){
-  return str.replace(/(\d+(?:\s\d{3})*)\s(\d{1,2})(?=($|[^0-9]))/g,(m,a,b)=>{
-    const first = parseInt(a.replace(/\s/g,''),10);
-    return first>=100 ? `${a} + ${b}` : m;
-  });
-}
-
-// "* пять и три" / "* 5, 3" / "* пять, три" → "* пять * три"
-function expandMultiplicativeList(str){
-  return str.replace(/(\*)(\s*)([^+\-*/]+)/g, (m, star, sp, tail)=>{
-    const parts = tail
-      .replace(/[,;]+/g, ' и ')
-      .split(/\s+и\s+/)
-      .map(s=>s.trim())
-      .filter(Boolean);
-    if(parts.length<=1) return m;
-    const isNumWord = t=>{
-      t=t.toLowerCase();
-      return /^\d+(?:[.,]\d+)?$/.test(t) ||
-             UNITS[t]!==undefined || TENS[t]!==undefined || HUNS[t]!==undefined ||
-             /^тысяч/.test(t) || /^миллион/.test(t) || /^миллиард/.test(t) ||
-             t==='млн' || t==='млрд';
+        const v = Function('"use strict";return(' + s + ')')();
+        if (!isFinite(v) || isNaN(v)) throw new Error("Invalid result");
+        return parseFloat(Number(v).toFixed(4)).toString();
     };
-    const ok = parts.every(p=>p.split(/\s+/).every(isNumWord));
-    if(!ok) return m;
-    return star + ' ' + parts.join(' * ');
-  });
-}
-
-// После "%" или слова "процент" если сразу идёт число/числительное,
-// вставляем "*", чтобы не получилось сложение "10% 5" → "10% * 5".
-function insertStarAfterPercent(str){
-  str = str.replace(/(процент(?:а|ов)?|%)\s+на\s+/gi, '$1 * ');
-  const unit = '(?:ноль|один|одна|два|две|три|четыре|пять|шесть|семь|восемь|девять|десять|одиннадцать|двенадцать|тринадцать|четырнадцать|пятнадцать|шестнадцать|семнадцать|восемнадцать|девятнадцать|двадцать|тридцать|сорок|пятьдесят|шестьдесят|семьдесят|восемьдесят|девяносто|сто|двести|триста|четыреста|пятьсот|шестьсот|семьсот|восемьсот|девятьсот|тысяч[а-я]*|миллион[а-я]*|миллиард[а-я]*)';
-  const reg = new RegExp('(процент(?:а|ов)?|%)\\s+(?=(?:\\d+(?:[.,]\\d+)?|'+unit+')(?:\\s|$))','gi');
-  return str.replace(reg,'$1 * ');
-}
-function stripFractionPhrases(str){
-  const NUM = '(?:\\d+(?:[.,]\\d+)?|[а-яё]+(?:\\s+[а-яё]+)*)';
-  const DEN = '(?:половин[а-я]*|втор(?:ая|ой|ую|ых|их)|трет(?:ья|ью|ей|и|их|ь(?:я|ью|ей|и|их)?)|четверт(?:ь|и|ую|ых|ой)|пят(?:ая|ую|ых|и)|шест(?:ая|ую|ых|и)|седьм(?:ая|ую|ых|и)|восьм(?:ая|ую|ых|и)|девят(?:ая|ую|ых|и)|десят(?:ая|ую|ых|и))';
-  const re = new RegExp(`(^|\\s)${NUM}\\s+${DEN}(?=\\s|$|[.,!?;:])`, 'gi');
-  return str.replace(re, (match, lead) => lead || ' ');
-}
-
-function stripRootsAndPowers(str){
-  const TERM = '(?:[а-яё0-9.,]+(?:\\s+[а-яё0-9.,]+)*)';
-  let s = String(str);
-  const rootPattern = new RegExp(`(?:квадратн[а-я]*\\s+корень|кубическ[а-я]*\\s+корень|корень(?:\\s+[а-яё]+)*)\\s+из\\s+${TERM}`, 'gi');
-  s = s.replace(rootPattern, ' ');
-  const powerPattern = new RegExp(`${TERM}\\s+в\\s+(?:квадрате|кубе|степени\\s+${TERM})`, 'gi');
-  s = s.replace(powerPattern, ' ');
-  return s;
-}
-
-
-// Удаляем токены, не относящиеся к числам или операциям
-function stripIrrelevantTokens(str){
-  return str
-    .split(/\s+/)
-    .map(tok => tok.replace(/^[.,!?;:]+|[.,!?;:]+$/g,''))
-    .map(tok => tok.replace(/[×xх]/g,'*').replace(/[÷:]/g,'/'))
-    .filter(tok=>{
-      if(!tok) return false;
-      if(['+','-','*','/','(',')'].includes(tok)) return true;
-      if(/^[-+]?\d+(?:[.,]\d+)?%$/.test(tok)) return true;
-      if(/^процент(?:а|ов)?$/i.test(tok)) return true;
-      const low = tok.toLowerCase();
-      return /^[-+]?\d+(?:[.,]\d+)?$/.test(tok) ||
-             UNITS[low] !== undefined || TENS[low] !== undefined || HUNS[low] !== undefined ||
-             /^тысяч/.test(low) || /^миллион/.test(low) || /^миллиард/.test(low) ||
-             low==='млн' || low==='млрд';
-    })
-    .join(' ');
-}
-
-function parseExpression(textRaw){
-  let text = textRaw.toLowerCase().replace(/ё/g,'е').replace(/\s+/g,' ').trim();
-  // Возможное перечисление масштабов через запятую/точку → складываем
-  let t = text
-    .replace(/((?:\d+|[ а-яёa-z]+(?:\s+[а-яёa-z]+)*)\s+(?:тысяч[а-я]*|тыс\.?|миллион[а-я]*|млн\.?|миллиард[а-я]*|млрд\.?))\s*[\.,]\s+(?=\S)/gi, '$1 плюс ')
-    .replace(/(\S)\s*[\.,]\s+((?:\d+|[ а-яёa-z]+(?:\s+[а-яёa-z]+)*)\s+(?:тысяч[а-я]*|тыс\.?|миллион[а-я]*|млн\.?|миллиард[а-я]*|млрд\.?)\b)/gi, '$1 плюс $2')
-    .replace(/руб(ль|ля|лей)/g,' ').replace(/коп(ейка|ейки|еек)/g,' ')
-    .replace(/[−–—-]/g,'-')
-    .replace(/(посчитай|посчитать|сколько будет|сколько|сосчитай|итого|в итоге|равно)/g,' ')
-    .trim();
-
-    // Базовая нормализация и явные операции
-  t = normalizeNumeralTypos(t);
-  t = t
-    .replace(/(умнож[а-я]*?)\s+на/g,' * ')
-    .replace(/(помнож[а-я]*?)\s+на/g,' * ')
-    .replace(/(^|[^a-zа-яё0-9])(умнож[а-я]*|помнож[а-я]*)(?=($|[^a-zа-яё0-9]))/g,'$1 * ')
-    .replace(/(раздели|разделить|подели|поделить|дели)\s+на/g,' / ')
-    .replace(/(^|[^a-zа-яё0-9])(раздели|разделить|подели|поделить|дели)(?=($|[^a-zа-яё0-9]))/g,'$1 / ')
-    .replace(/(^|[^a-zа-яё0-9])плюс(?=($|[^a-zа-яё0-9]))/gi,'$1 + ')
-    .replace(/(^|[^a-zа-яё0-9])минус(?=($|[^a-zа-яё0-9]))/gi,'$1 - ')
-    .replace(/(\d)\s*[×xх]\s*(\d)/g,'$1 * $2') // "2 х 3"
-    .replace(/[÷:]/g,'/')
-    .replace(/\s+/g,' ')
-    .trim();
-
-  // 1) «X на Y» даже без «умножь»
-  t = fixNaMultiplication(t);
-  t = fixNaDivision(t);
-  // 2) "10% 5" → "10% * 5"
-  t = insertStarAfterPercent(t);
-  t = stripRootsAndPowers(t);
-  t = stripFractionPhrases(t);
-  // 3) Хвост после "*": множители через пробел/"и"/запятую
-  t = expandMultiplicativeList(t);
-  t = insertStarsAfterStar(t);
-  t = insertStarsBetweenBareNumbers(t);
-  t = collapseRepeatedStars(t);
-  // 4) удаляем посторонние слова
-  t = stripIrrelevantTokens(t);
-  // 5) между цифрами может потеряться «плюс»: "1380 4" → "1380 + 4"
-  t = insertPlusBetweenNumbers(t);
-  // 6) схлопываем дублирующиеся операторы ("- -" → "-")
-  t = t.replace(/([+\-*/])\s*\1+/g,'$1');
-
-  const parts = t.split(/([+\-*/])/).filter(p=>p.trim()!=='');
-  const out=[], disp=[];
-  let pendingUnaryMinus=false;
-
-  for(const part of parts){
-    let s=part.trim();
-
-    if(['+','-','*','/'].includes(s)){
-      if (s==='-' && (out.length===0 || ['+','-','*','/','('].includes(out[out.length-1]))) {
-        pendingUnaryMinus=true;
-        continue;
-      }
-      out.push(s);
-      const opDisplay = s==='*' ? '×' : s==='/' ? '÷' : s;
-      disp.push(' ' + opDisplay + ' ');
-      continue;
-    }
-
-
-    let m;
-    if(m = s.match(/^(.+?)\s*(%|процент(?:а|ов)?)$/)){
-      const n = extractNumberRu(m[1]);
-      out.push('(' + n + '/100)');
-      disp.push(formatNumberSpaces(n)+'%');
-      pendingUnaryMinus=false;
-      continue;
-    }
-    let n = extractNumberRu(s);
-    if (pendingUnaryMinus){
-      if (!n.startsWith('-')) n='-'+n;
-      pendingUnaryMinus=false;
-    }
-    out.push(n);
-    disp.push(formatNumberSpaces(n));
-  }
-
-  const sanitized = out.join('');
-  const display = disp.join('').trim();
-  if(!sanitized) throw new Error('Пустое выражение');
-  if(!/^[0-9+\-*/.() ]+$/.test(sanitized)) throw new Error('Недопустимые символы');
-  return {display, sanitized};
-}
-
-function prettyMathForDisplay(src){
-  return String(src);
-}
-
-const calc = s=>{ const v = Function('\"use strict\";return('+s.replace(/--/g,'+')+')')(); if(!isFinite(v)||isNaN(v)) throw 0; return parseFloat(Number(v).toFixed(4)).toString(); };
 
     /* ===== UI helpers ===== */
     const UI={ status:$('#status'), expr:$('#expr'), full:$('#full'), btnTitle:$('#btnTitle'),
@@ -1103,15 +596,11 @@ const calc = s=>{ const v = Function('\"use strict\";return('+s.replace(/--/g,'+
       if (!fitFullText._raf) fitFullText._raf = 0; cancelAnimationFrame(fitFullText._raf);
       fitFullText._raf = requestAnimationFrame(()=>{
         const parent = el.parentElement || el;
-        const pad = 0.98; // небольшой внутренний отступ
+        const pad = 0.98;
         const MAX = 72, MIN = 18;
-
-        // черновая оценка (по длине строки), чтобы меньше прыгало
         const len = el.textContent.length || 1;
         const rough = Math.min(MAX, Math.max(MIN, Math.floor((parent.clientWidth * pad) / Math.max(8, len))));
         el.style.fontSize = rough + 'px';
-
-        // уточняем двоичным поиском — быстро и стабильно
         let low = MIN, high = MAX, best = rough;
         for (let i=0;i<12;i++){
           const mid = Math.round((low+high)/2);
@@ -1119,313 +608,330 @@ const calc = s=>{ const v = Function('\"use strict\";return('+s.replace(/--/g,'+
           if (el.scrollWidth <= parent.clientWidth * pad){ best = mid; low = mid + 1; } else { high = mid - 1; }
         }
         el.style.fontSize = best + 'px';
-
-        // при переполнении оставляем видимым правый край
         const overflow = el.scrollWidth > parent.clientWidth;
         el.dataset.overflow = overflow ? '1' : '0';
         el.style.textAlign = 'right';
       });
     }
 
-    let lastPreview = { display:'', out:'' };
-    function updateLive(phrase){
-      if(!phrase) return; // ничего не считаем
-      let parsed;
-      try{
-        parsed = parseExpression(phrase);
-      }catch{
-        lastPreview = { display:'', out:'' };
-        if(UI.expr){ UI.expr.textContent=''; UI.expr.scrollLeft=0; }
-        fitFullText('');
-        return;
-      }
+    let calculationTimer = null;
+    let lastExpr = '';
+    let lastResult = '';
 
-      const {display,sanitized} = parsed;
-      const pretty = prettyMathForDisplay(display);
-      lastPreview = { display: pretty, out:'' };
-      if(UI.expr){ UI.expr.textContent=pretty; UI.expr.scrollLeft=UI.expr.scrollWidth; }
+    function toUiExpr(input) {
+      let s = String(input || '');
+      s = s.toLowerCase();
 
-      try{
-        const out = calc(sanitized);
-        const outFmt = formatNumberSpaces(out);
-        lastPreview.out = outFmt;
-        fitFullText(outFmt);
-      }catch{
-        fitFullText('');
-      }
+      // --- вспомогательные «границы слова» для Юникода ---
+      const WB = '(^|[^\\p{L}\\p{N}])';
+      const WE = '(?=$|[^\\p{L}\\p{N}])';
+      function rx(word){ return new RegExp(`${WB}${word}${WE}`, 'giu'); }
+
+      // 1) мини-словарь 1–9 (как отдельные слова)
+      s = s.replace(rx('(один|одна|одно)'), '$11');
+      s = s.replace(rx('(два|две)'),        '$12');
+      s = s.replace(rx('три'),              '$13');
+      s = s.replace(rx('четыре'),           '$14');
+      s = s.replace(rx('пять'),             '$15');
+      s = s.replace(rx('шесть'),            '$16');
+      s = s.replace(rx('семь'),             '$17');
+      s = s.replace(rx('восемь'),           '$18');
+      s = s.replace(rx('девять'),           '$19');
+
+      // 2) русские операторы словами -> символы
+      s = s.replace(rx('плюс'),   '$1+')
+           .replace(rx('минус'),  '$1-')
+           .replace(rx('(умножить|умножь|помножить|помножь)(\\s*на)?'), '$1*')
+           .replace(rx('(разделить|поделить|делить)(\\s*на)?'),         '$1/');
+
+      // 2.1) отдельный кейс: "2 на 3", "(1+2) на 4" -> умножение
+      s = s.replace(/(\d|\))\s*на\s*(?=\d|\()/giu, '$1*');
+      
+      // 3) проценты (слова)
+      s = s.replace(/(\d+)\s*процент(?:а|ов)?\b/gi, '$1%');
+
+      return s.trim();
     }
 
-    /* ===== Вспомогательная склейка сегментов без дублей ===== */
-    function findSubsequenceIndex(haystackTokens, needleTokens){
-      const h = haystackTokens.map(tok=>tok.toLowerCase());
-      const n = needleTokens.map(tok=>tok.toLowerCase());
-      if(!n.length || n.length>h.length) return n.length===0 ? 0 : -1;
-      outer: for(let i=0;i<=h.length-n.length;i++){
-        for(let j=0;j<n.length;j++){
-          if(h[i+j]!==n[j]) continue outer;
-        }
-        return i;
-      }
-      return -1;
+    function normalizeExpr(input) {
+      let s = String(input || '');
+
+      // 1) унификация пробелов/операторов
+      s = s.replace(/[\u00A0\u202F\u2007\u2060]/g, ' ')
+           .replace(/[×xXхХ⋅∙·]/g, '*')
+           .replace(/[÷:]/g, '/')
+           .replace(/[−–—]/g, '-')
+           .toLowerCase();
+
+      // --- вспомогательные «границы слова» для Юникода ---
+      const WB = '(^|[^\\p{L}\\p{N}])';      // слева не буква/цифра или начало
+      const WE = '(?=$|[^\\p{L}\\p{N}])';    // справа конец или не буква/цифра
+
+      function rx(word){ return new RegExp(`${WB}${word}${WE}`, 'giu'); } // с флагом 'u'!
+
+      // 1) мини-словарь 1–9 (как отдельные слова)
+      s = s.replace(rx('(один|одна|одно)'), '$11');
+      s = s.replace(rx('(два|две)'),        '$12');
+      s = s.replace(rx('три'),              '$13');
+      s = s.replace(rx('четыре'),           '$14');
+      s = s.replace(rx('пять'),             '$15');
+      s = s.replace(rx('шесть'),            '$16');
+      s = s.replace(rx('семь'),             '$17');
+      s = s.replace(rx('восемь'),           '$18');
+      s = s.replace(rx('девять'),           '$19');
+
+      // 2) русские операторы словами -> символы
+      s = s.replace(rx('плюс'),   '$1+')
+           .replace(rx('минус'),  '$1-')
+           .replace(rx('(умножить|умножь|помножить|помножь)(\\s*на)?'), '$1*')
+           .replace(rx('(разделить|поделить|делить)(\\s*на)?'),         '$1/');
+
+      // 2.1) отдельный кейс: "2 на 3", "(1+2) на 4" -> умножение
+      s = s.replace(/(\d|\))\s*на\s*(?=\d|\()/giu, '$1*');
+
+      // 3) масштабы: млрд/млн/тыс -> арифметика
+      s = s.replace(/\b(\d+)\s*(млрд|миллиард[а-я]*)\b/gi, '($1*1000000000)');
+      s = s.replace(/\b(\d+)\s*(млн|миллион[а-я]*)\b/gi,   '($1*1000000)');
+      s = s.replace(/\b(\d+)\s*(тыс|тысяч[а-я]*)\b/gi,     '($1*1000)');
+
+      // если несколько масштабов подряд — вставить '+'
+      s = s.replace(/\)\s+(?=\()/g, ')+(');   // ") (" -> ")+("
+      s = s.replace(/(\))\s+(\d)/g, '$1+$2'); // ") 500" -> ")+500"
+      s = s.replace(/(\d)\s+(\()/g, '$1+(');  // "500 (" -> "500+("
+
+      // 1.234.567,89 / 1.234.567.89 (точка дробная, если единственная и 1–2 знака)
+      // 1.300.000 -> 1300000  (хвост .000 — это тысячная группа)
+      // 1.234.567.89 -> 1 234 567  (последняя .89 отбрасывается как невалидная группировка)
+      s = s.replace(/\b(\d{1,3}(?:[ \u00A0\u202F.]\d{3})+)([.,](\d+))\b/g,
+        (_, intPart, sepFrac, frac) => {
+          const intClean     = intPart.replace(/[ \u00A0\u202F.]/g, '');
+          const sep          = sepFrac[0];
+          const hasOtherDots = intPart.includes('.');
+
+          if (sep === ',') {
+            // запятая всегда дробная
+            return intClean + '.' + frac;
+          }
+          if (sep === '.' && !hasOtherDots && frac.length <= 2) {
+            // единственная точка и 1–2 знака -> десятичная
+            return intClean + '.' + frac;
+          }
+          if (sep === '.' && hasOtherDots && frac.length === 3) {
+            // есть другие точки -> это тысячная группа из 3 цифр (в т.ч. .000)
+            return intClean + frac;
+          }
+          // иначе отбросить «хвост» после точки (напр. .89 в 1.234.567.89)
+          return intClean;
+      });
+
+      s = s.replace(/\b(\d{1,3}(?:[ \u00A0\u202F.]\d{3})+)\b/g,
+        intPart => intPart.replace(/[ \u00A0\u202F.]/g,'')
+      );
+
+      // 5) остаточные запятые → точки
+      s = s.replace(/,/g, '.');
+
+      // проценты
+      s = s.replace(/(\d+)\s*процент(?:а|ов)?\b/gi, '$1%'); // слова -> знак
+      s = s.replace(/(\d+)\s*%/g, '($1/100)');              // 10% -> (10/100)
+      s = s.replace(/\)\s*на\s*(?=\d|\()/gi, ')*');         // "10% на 500" -> "(10/100) * 500"
+
+      // 7) финальная чистка пробелов
+      return s.replace(/\s+/g, ' ').trim();
     }
 
-    // Склеиваем группы тысяч вида "1 590" в "1590", чтобы новые сегменты
-    // без пробелов не считались отличными и не дублировали число.
-    function normalizeDigitGroups(str){
-      return String(str).replace(/(^|[^\d])(\d{1,3}(?:\s\d{3})+)(?!\d)/g, (_,lead,num)=>lead+num.replace(/\s+/g,''));
+    function calculateAndShow(expr) {
+        if (!expr) {
+            fitFullText('');
+            return;
+        }
+        lastExpr = expr;
+        try {
+            const mathExpr = normalizeExpr(expr);
+            // защита: убираем хвост из операторов («10 +» → «10»)
+            const safe = mathExpr.replace(/[+\-*/.\s]+$/, '');
+            if (!safe) throw new Error('Empty');
+            const result = calc(safe);
+            const resultFmt = formatNumberSpaces(result);
+            fitFullText(resultFmt);
+            lastResult = resultFmt;
+        } catch (e) {
+            fitFullText('');
+            lastResult = '';
+        }
     }
 
-    function mergeSegmentsNoDup(arr){
-      const normTok = tok => String(tok||'').toLowerCase().replace(/[.,!?;:]/g,'');
-      const tokensEqual = (a,b)=>{
-        if(a.length!==b.length) return false;
-        for(let i=0;i<a.length;i++){
-          if(normTok(a[i])!==normTok(b[i])) return false;
-        }
-        return true;
-      };
-      const isOperatorToken = tok => {
-        const n = normTok(tok);
-        return n==='+'||n==='-'||n==='*'||n==='/'||
-               n==='плюс'||n==='минус'||n==='умножь'||n==='умножить'||
-               n==='помножь'||n==='помножить'||n==='дели'||n==='раздели'||
-               n==='разделить'||n==='подели'||n==='на';
-      };
-      let acc='';
-      for(const raw of arr){
-        let sRaw=String(raw||'').replace(/[−–—-]/g,'-').replace(/\s+/g,' ').trim();
-        if(!sRaw) continue;
-        let sTokensRaw = sRaw.split(' ').filter(Boolean);
-        let s = normalizeDigitGroups(sRaw);
-        if(acc) acc = normalizeDigitGroups(acc);
-        if(!acc){ acc=s; continue; }
-
-        const accTokens = acc.split(' ').filter(Boolean);
-
-        if(accTokens.length && sTokensRaw.length){
-          const occurrences=[];
-          for(let i=0;i<=sTokensRaw.length-accTokens.length;i++){
-            const rawChunk = sTokensRaw.slice(i, i+accTokens.length).join(' ');
-            const chunkTokens = normalizeDigitGroups(rawChunk).split(' ').filter(Boolean);
-            if(tokensEqual(chunkTokens, accTokens)) occurrences.push(i);
-          }
-          if(occurrences.length>1){
-            let changed=false;
-            for(let idx=occurrences.length-1; idx>=0; idx--){
-              const pos=occurrences[idx];
-              if(pos===occurrences[0]) continue;
-              const prevTok=sTokensRaw[pos-1];
-              if(prevTok && isOperatorToken(prevTok)) continue;
-              sTokensRaw.splice(pos, accTokens.length);
-              changed=true;
-            }
-            if(changed){
-              sRaw = sTokensRaw.join(' ');
-              s = normalizeDigitGroups(sRaw);
-            }
-          }
-        }
-
-        let sTokens = s.split(' ').filter(Boolean);
-
-        if(accTokens.length>=2 && sTokens.length){
-          const lastTokRaw = accTokens[accTokens.length-1] || '';
-          const opNorm = lastTokRaw.toLowerCase().replace(/[^+\-*/а-яё]/g,'');
-          if(opNorm==='-' || opNorm==='минус' || opNorm==='+' || opNorm==='плюс'){
-            const isNumPart = tok => {
-              const low = tok.toLowerCase().replace(/[.,!?;:]/g,'');
-              if(!low) return false;
-              if(low==='и') return true;
-              if(/^\d+(?:[.,]\d+)?$/.test(low)) return true;
-              if(UNITS[low]!==undefined || TENS[low]!==undefined || HUNS[low]!==undefined) return true;
-              if(/^тысяч/.test(low) || /^миллион/.test(low) || /^миллиард/.test(low) || low==='млн' || low==='млрд') return true;
-              return false;
-            };
-            let start = accTokens.length-2;
-            while(start>=0 && isNumPart(accTokens[start])) start--;
-            start++;
-            const prevPhraseTokens = accTokens.slice(start, accTokens.length-1);
-            const prevPhrase = prevPhraseTokens.join(' ');
-            const prevVal = Number(extractNumberRu(prevPhrase));
-            if(!isNaN(prevVal)){
-              let dropLen = 0;
-              for(let len=1; len<=sTokens.length; len++){
-                const prefix = sTokens.slice(0,len).join(' ');
-                const prefixVal = Number(extractNumberRu(prefix));
-                if(!isNaN(prefixVal) && prefixVal===prevVal){
-                  dropLen = len;
-                  break;
-                }
-              }
-              if(dropLen){
-                sTokens = sTokens.slice(dropLen);
-                s = sTokens.join(' ');
-                if(!sTokens.length) continue;
-              }
-            }
-          }
-        }
-
-        let merged=false;
-
-        for(let k=Math.min(sTokens.length, accTokens.length); k>0; k--){
-          const tailStr = accTokens.slice(-k).join(' ');
-          const headStr = sTokens.slice(0,k).join(' ');
-          const valTail = Number(extractNumberRu(tailStr));
-          const valHead = Number(extractNumberRu(headStr));
-          if(!isNaN(valTail) && !isNaN(valHead) && valTail===valHead){
-            acc = accTokens.slice(0,-k).concat(sTokens).join(' ');
-            merged=true;
-            break;
-          }
-        }
-        if(merged) continue;
-
-        const idxContainedInAcc = findSubsequenceIndex(accTokens, sTokens);
-        if(idxContainedInAcc !== -1){
-          // Новый сегмент полностью содержится в уже накопленной строке —
-          // игнорируем его, чтобы не дублировать числовую часть.
-          continue;
-        }
-
-        const idxAccInsideNew = findSubsequenceIndex(sTokens, accTokens);
-        if(idxAccInsideNew !== -1){
-          // Новый сегмент включает предыдущий. Оставляем его целиком, но сначала
-          // уберём подряд идущие повторы предыдущей фразы без операторов между ними,
-          // иначе получим "300 + 5 300 + 5".
-          const occurrences=[];
-          for(let i=0;i<=sTokens.length-accTokens.length;i++){
-            const chunk=sTokens.slice(i,i+accTokens.length);
-            if(tokensEqual(chunk, accTokens)) occurrences.push(i);
-          }
-          if(occurrences.length>1){
-            let changed=false;
-            for(let idxIdx=occurrences.length-1; idxIdx>=0; idxIdx--){
-              const pos=occurrences[idxIdx];
-              if(pos===idxAccInsideNew) continue;
-              const prevTok=sTokens[pos-1];
-              if(prevTok && isOperatorToken(prevTok)) continue;
-              sTokens.splice(pos, accTokens.length);
-              changed=true;
-            }
-            if(changed){
-              s=sTokens.join(' ');
-            }
-          }
-          acc = s;
-          continue;
-        }
-
-        const tail = accTokens.slice(-8).join(' ').trim();
-        if (tail && s.startsWith(tail)) acc = acc + s.slice(tail.length);
-        else if (!acc.endsWith(s)) acc = acc + ' ' + s;
+    function updateLive(phrase) {
+      const uiExpr = toUiExpr(phrase);
+      if (UI.expr) {
+          UI.expr.textContent = uiExpr;
+          UI.expr.scrollLeft = UI.expr.scrollWidth;
       }
-      return acc.trim();
+      fitFullText('');
+      lastResult = '';
+
+      if (calculationTimer) {
+          clearTimeout(calculationTimer);
+      }
+      // No more timeout, calculate directly.
+      calculateAndShow(phrase);
+    }
+
+    function commitResult() {
+        if (calculationTimer) {
+            clearTimeout(calculationTimer);
+            calculationTimer = null;
+        }
+        const currentExpr = UI.expr.textContent;
+        if (currentExpr) {
+            if (!lastResult) {
+                calculateAndShow(lastExpr);
+            }
+            if (lastExpr && lastResult) {
+                pushHistory(toUiExpr(lastExpr), lastResult);
+            }
+        }
+        lastExpr = '';
+        lastResult = '';
     }
 
     /* ===== Распознавание (Web + Cordova) ===== */
-    let sessionActive=false;
-    const recognizer={ mode:'none', available:false,
-      start(){ UI.msg('Распознавание речи недоступно. Нужен HTTPS/localhost или плагин Cordova.'); navigator.vibrate && navigator.vibrate(30); },
-      stop(){},
-      restartIfNeeded(){}
+    let sessionActive = false;
+    let watchdogTimer = null;
+    const recognizer = {
+        mode: 'none',
+        available: false,
+        _rec: null,
+        start() { UI.msg('Распознавание речи недоступно. Нужен HTTPS/localhost или плагин Cordova.'); navigator.vibrate && navigator.vibrate(30); },
+        stop() { stopSession(); },
     };
 
-    (function setupWeb(){
-      const SR=window.SpeechRecognition||window.webkitSpeechRecognition; const secure = location.protocol==='https:' || location.hostname==='localhost' || location.hostname==='127.0.0.1';
-      if(!SR || !secure) return;
-      let rec=null; let silenceTimer=null; let buffer='';
-
-      const looksIncomplete = (txt)=>/(\b(?:с|и)\s*половин)|\b[01]?\s*\/\s*2\b/i.test(txt);
-      function clearSilence(){ if(silenceTimer){ clearTimeout(silenceTimer); silenceTimer=null; } }
-        function armSilence(){ clearSilence(); silenceTimer=setTimeout(()=>{ try{ rec && rec.stop(); }catch{} }, 1500); }
-
-        function configure(){
-          rec = new SR();
-          rec.lang='ru-RU';
-          rec.interimResults=true;
-          rec.maxAlternatives=16;
-          rec.continuous = false;
-
-        rec.onresult = (e)=>{
-          const results = Array.from(e.results||[]);
-          const segBest = results.map(seg => {
-            const arr = Array.from(seg);
-            const score = cand => {
-              const s = String(cand.transcript||'');
-              let val = cand.confidence;
-              const frac = /(половин(?:а|ой|у|ы)?|втор(?:ых|ая|ой|ую)|трет(?:их|ья|ей|ью)|четверт(?:ых|ая|ой|ую)|пят(?:ых|ая|ой|ую)|шест(?:ых|ая|ой|ую)|седьм(?:ых|ая|ой|ую)|восьм(?:ых|ая|ой|ую)|девят(?:ых|ая|ой|ую)|десят(?:ых|ая|ой|ую))(?:\s|$)/i;
-              if (frac.test(s)) val += 1;
-              if (/тыс|млн|млрд|миллион|миллиард/i.test(s)) val += 0.5;
-              return val + s.length/1000;
-            };
-            arr.sort((a,b)=> score(b)-score(a));
-            return arr[0]?.transcript || '';
-          });
-          const joined = mergeSegmentsNoDup(segBest);
-          if(joined){ buffer = joined; updateLive(buffer); }
-          if(!looksIncomplete(joined)) armSilence(); else clearSilence();
-        };
-          rec.onerror = ()=>{ if(sessionActive){ stopSession(); } };
-          rec.onend   = ()=>{ clearSilence(); if(!sessionActive) return; stopSession(); };
-      }
-
-        function startSession(){
-          if(sessionActive) return;
-          sessionActive=true;
-          UI.setListening(true);
-          fitFullText('');
-          if(UI.expr){ UI.expr.textContent=''; UI.expr.scrollLeft=0; }
-          lastPreview = { display:'', out:'' };
-          buffer='';
-          configure();
-          try{ rec.start(); }catch{}
+    function stopSession() {
+        if (!sessionActive) return;
+        sessionActive = false;
+        if (watchdogTimer) {
+            clearTimeout(watchdogTimer);
+            watchdogTimer = null;
         }
-      function stopSession(){ if(!sessionActive) return; sessionActive=false; clearSilence(); try{ rec && rec.stop(); }catch{} UI.setListening(false); if(lastPreview.display){ pushHistory(lastPreview.display,lastPreview.out); } }
-
-      recognizer.mode='web'; recognizer.available=true;
-      recognizer.start=startSession; recognizer.stop=stopSession; recognizer.restartIfNeeded=function(){ if(sessionActive){ try{ rec && rec.start(); }catch{} } };
-
-      document.addEventListener('visibilitychange', ()=>{ if(document.hidden && sessionActive){ stopSession(); } });
-    })();
-
-    document.addEventListener('deviceready', ()=>{
-      try{
-        const rec = window.plugins && window.plugins.speechRecognition; if(!rec) return;
-        recognizer.mode='cordova'; recognizer.available=true;
-
-        let buffer=''; let silenceTimer=null; let lastChunk='';
-        function clearSilence(){ if(silenceTimer){ clearTimeout(silenceTimer); silenceTimer=null; } }
-          function armSilence(){ clearSilence(); silenceTimer=setTimeout(()=>{ stopSession(); }, 1500); }
-
-        function loopStart(){
-          if(!sessionActive) return;
-          rec.startListening( matches=>{
-            const chosen = (matches||[])[0] ? String(matches[0]) : '';
-            if(chosen){
-              const merged = mergeSegmentsNoDup([buffer, chosen]);
-              buffer = merged; lastChunk = chosen;
-              updateLive(buffer);
-              if(/(с\s*половин|1\s*\/\s*2|½)/i.test(buffer)) clearSilence(); else armSilence();
+        UI.setListening(false);
+        if (recognizer._rec) {
+            if (recognizer.mode === 'web') {
+                try { recognizer._rec.abort(); } catch (e) {}
+            } else if (recognizer.mode === 'cordova') {
+                try { recognizer._rec.stopListening(() => {}, () => {}); } catch (e) {}
             }
-          }, ()=>{ if(sessionActive){ setTimeout(loopStart, 150); } }, { language:'ru-RU', matches:8, showPartial:true, showPopup:false });
         }
+        commitResult();
+    }
 
-          function startSession(){
-            if(sessionActive) return;
-            sessionActive=true;
+    (function setupWeb() {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const secure = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+        if (!SR || !secure) return;
+
+        let rec = null;
+
+        function startSession() {
+            if (sessionActive) return;
+            sessionActive = true;
             UI.setListening(true);
             fitFullText('');
-            if(UI.expr){ UI.expr.textContent=''; UI.expr.scrollLeft=0; }
-            lastPreview = { display:'', out:'' };
-            buffer='';
-            lastChunk='';
-          rec.hasPermission(has=>{ const go=()=>{ loopStart(); }; if(has) go(); else rec.requestPermission(go, ()=> UI.msg('Нет доступа к микрофону.')); }, ()=> UI.msg('Ошибка проверки разрешений.'));
-        }
-        function stopSession(){ clearSilence(); if(!sessionActive) return; sessionActive=false; try{ rec.stopListening(()=>{},()=>{}); }catch{} UI.setListening(false); if(lastPreview.display){ pushHistory(lastPreview.display,lastPreview.out); } }
+            if (UI.expr) { UI.expr.textContent = ''; UI.expr.scrollLeft = 0; }
 
-        recognizer.start=startSession; recognizer.stop=stopSession;
-      }catch{}
+            rec = new SR();
+            recognizer._rec = rec;
+            rec.lang = 'ru-RU';
+            rec.continuous = false;
+            rec.interimResults = false;
+            rec.maxAlternatives = 1;
+
+            rec.onresult = (e) => {
+                if (watchdogTimer) clearTimeout(watchdogTimer);
+                const transcript = e.results[0][0].transcript.trim();
+                if (transcript) {
+                    updateLive(transcript);
+                }
+                stopSession();
+            };
+
+            rec.onspeechend = stopSession;
+            rec.onerror = stopSession;
+            rec.onend = stopSession;
+
+            try {
+                rec.start();
+                watchdogTimer = setTimeout(() => {
+                    watchdogTimer = null;
+                    stopSession();
+                }, 7000);
+            } catch (e) {
+                stopSession();
+            }
+        }
+
+        recognizer.mode = 'web';
+        recognizer.available = true;
+        recognizer.start = startSession;
+        recognizer.stop = stopSession;
+
+        document.addEventListener('visibilitychange', () => { if (document.hidden && sessionActive) { stopSession(); } });
+    })();
+
+    document.addEventListener('deviceready', () => {
+        try {
+            const rec = window.plugins && window.plugins.speechRecognition;
+            if (!rec) return;
+
+            recognizer.mode = 'cordova';
+            recognizer.available = true;
+            recognizer._rec = rec;
+
+            const startSession = () => {
+                if (sessionActive) return;
+
+                const go = () => {
+                    sessionActive = true;
+                    UI.setListening(true);
+                    fitFullText('');
+                    if (UI.expr) { UI.expr.textContent = ''; UI.expr.scrollLeft = 0; }
+
+                    const options = { language: 'ru-RU', matches: 1, showPartial: false, showPopup: false };
+
+                    rec.startListening(
+                        (matches) => {
+                            if (watchdogTimer) clearTimeout(watchdogTimer);
+                            const phrase = (matches && matches[0]) ? String(matches[0]).trim() : '';
+                            if (phrase) {
+                                updateLive(phrase);
+                            }
+                            stopSession();
+                        },
+                        (err) => {
+                            if (sessionActive) stopSession();
+                        },
+                        options
+                    );
+
+                    watchdogTimer = setTimeout(() => {
+                        watchdogTimer = null;
+                        stopSession();
+                    }, 7000);
+                };
+
+                rec.hasPermission(
+                    (has) => {
+                        if (has) go();
+                        else rec.requestPermission(go, () => UI.msg('Нет доступа к микрофону.'));
+                    },
+                    () => UI.msg('Ошибка проверки разрешений.')
+                );
+            };
+
+            recognizer.start = startSession;
+            recognizer.stop = stopSession;
+        } catch (e) {
+            console.error("Error setting up Cordova speech recognition:", e);
+        }
     }, false);
 
     $('#btnListen').addEventListener('click', e=>{ e.preventDefault(); if(!recognizer.available){ UI.msg('Нужен HTTPS/localhost (Web) или плагин speechrecognition (Cordova).'); navigator.vibrate && navigator.vibrate(30); return; } if(!sessionActive) recognizer.start(); else recognizer.stop(); });
